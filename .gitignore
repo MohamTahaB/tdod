@@ -1,0 +1,5 @@
+/frontend/package.json
+/frontend/package-lock.json
+/frontend/tsconfig.json
+/frontend/node_modules
+/frontend/.idea
