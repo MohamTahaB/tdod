@@ -3,8 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 type todo struct {
@@ -80,6 +82,11 @@ func addTodo(c *gin.Context) {
 
 func main() {
 	router := gin.Default()
+	// Configure CORS middleware
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	// Use the config
+	router.Use(cors.New(config))
 	router.GET("/todos", getTodos)
 	router.GET("/todos/:id", getTodoById)
 	router.PATCH("/todos/:id", toggleStatus)
