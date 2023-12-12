@@ -1,6 +1,22 @@
-import { List, Typography } from "antd";
-import { useEffect, useState } from "react";
+import {
+    Children,
+    JSXElementConstructor,
+    ReactElement,
+    ReactNode,
+    ReactPortal,
+    useEffect,
+    useState,
+} from "react";
 import api from "../api/todos";
+import {
+    Container,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+} from "@mui/material";
 
 type Todo = {
     id: string;
@@ -8,29 +24,44 @@ type Todo = {
     completed: boolean;
 };
 
+const style = {
+    width: "100%",
+};
+
 function TodoList() {
     const [todos, setTodos] = useState<Todo[]>([]);
 
     useEffect(() => {
-        api.get("/todos").then((res) => {
-            setTodos(res.data);
-        });
+        const getData = async () => {
+            try {
+                const res = await api.get("/todos");
+                setTodos(res.data);
+            } catch (err) {
+                console.log(err);
+            }
+        };
+        getData();
     }, []);
+
     return (
-        <List
-            header={<div>Header</div>}
-            footer={<div>Footer</div>}
-            bordered
-            dataSource={todos}
-            renderItem={(item) => (
-                <List.Item>
-                    <Typography.Text mark>
-                        {item.completed ? "\uD83D\uDFE2" : "\uD83D\uDD34"}
-                    </Typography.Text>{" "}
-                    {item.item}
-                </List.Item>
-            )}
-        />
+        <Container>
+            <TableContainer>
+                <Table style={style}>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell align="left">Tasks</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {todos.map((todo) => (
+                            <TableRow key={todo.id}>
+                                <TableCell align="left">{todo.item}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Container>
     );
 }
 
