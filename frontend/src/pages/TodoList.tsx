@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEventHandler, useEffect, useState } from "react";
 import api from "../api/todos";
 import Table from "react-bootstrap/Table";
 import Form from "react-bootstrap/Form";
@@ -32,18 +32,17 @@ function TodoList() {
         setFormData({
             ...formData,
             [name]: value,
-        })
+        });
     };
 
-    const handleSubmit =async (e: ChangeEvent<HTMLInputElement>) => {
+    const handleSubmit = async () => {
         try {
-            await api.post("/todos", formData)
-            getData()
+            await api.post("/todos", formData);
+            getData();
+        } catch (err) {
+            console.log(err);
         }
-        catch (err) {
-            console.log(err)
-        }
-    }
+    };
 
     useEffect(() => {
         getData();
@@ -78,16 +77,15 @@ function TodoList() {
                     ))}
                 </tbody>
             </Table>
-            <Form>
+            <Form onSubmit={handleSubmit}>
                 <Form.Label>Task</Form.Label>
                 <Form.Control
                     type="text"
                     id="item"
                     placeholder="Enter your task here"
+                    onChange={handleChange}
                 />
-                <Button type="submit" onClick={() => {}}>
-                    Submit
-                </Button>
+                <Button type="submit">Submit</Button>
             </Form>
         </>
     );
