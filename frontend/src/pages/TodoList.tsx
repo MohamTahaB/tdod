@@ -1,31 +1,12 @@
-import {
-    Children,
-    JSXElementConstructor,
-    ReactElement,
-    ReactNode,
-    ReactPortal,
-    useEffect,
-    useState,
-} from "react";
+import { useEffect, useState } from "react";
 import api from "../api/todos";
-import {
-    Container,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-} from "@mui/material";
+import Table from "react-bootstrap/Table";
+import Form from "react-bootstrap/Form";
 
 type Todo = {
     id: string;
     item: string;
     completed: boolean;
-};
-
-const style = {
-    width: "100%",
 };
 
 function TodoList() {
@@ -41,27 +22,36 @@ function TodoList() {
             }
         };
         getData();
-    }, []);
+    }, [todos]);
 
     return (
-        <Container>
-            <TableContainer>
-                <Table style={style}>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="left">Tasks</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {todos.map((todo) => (
-                            <TableRow key={todo.id}>
-                                <TableCell align="left">{todo.item}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Container>
+        <Table striped bordered hover variant="dark">
+            <thead>
+                <tr>
+                    <th>State</th>
+                    <th>Task</th>
+                    <th>Done ?</th>
+                </tr>
+            </thead>
+            <tbody>
+                {todos.map((task) => (
+                    <tr>
+                        <td>
+                            <Form.Check
+                                id={task.id}
+                                checked={task.completed}
+                                onClick={() => {
+                                    api.patch(`todos/${task.id}`);
+                                    setTodos([]);
+                                }}
+                            />
+                        </td>
+                        <td>{task.item}</td>
+                        <td>{task.completed ? "True" : "False"}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </Table>
     );
 }
 
