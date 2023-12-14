@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEventHandler, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import api from "../api/todos";
 import Table from "react-bootstrap/Table";
 import Form from "react-bootstrap/Form";
@@ -12,11 +12,7 @@ type Todo = {
 
 function TodoList() {
     const [todos, setTodos] = useState<Todo[]>([]);
-    const [formData, setFormData] = useState<Todo>({
-        completed: false,
-        id: "",
-        item: "",
-    });
+    const [formData, setFormData] = useState<string>("");
 
     const getData = async () => {
         try {
@@ -28,16 +24,19 @@ function TodoList() {
     };
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
+        const { value } = e.target;
+        setFormData(value);
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
         try {
-            await api.post("/todos", formData);
+            await api.post("/todos", {
+                completed: false,
+                id: Math.floor(Math.random() * 1000000).toString(),
+                item: formData,
+            });
             getData();
         } catch (err) {
             console.log(err);
@@ -60,14 +59,14 @@ function TodoList() {
                 </thead>
                 <tbody>
                     {todos.map((task) => (
-                        <tr>
+                        <tr id={task.id}>
                             <td>
                                 <Form.Check
                                     id={task.id}
                                     checked={task.completed}
-                                    onClick={() => {
-                                        api.patch(`todos/${task.id}`);
-                                        getData();
+                                    onClick={async () => {
+                                        await api.patch(`todos/${task.id}`);
+                                        await getData();
                                     }}
                                 />
                             </td>
