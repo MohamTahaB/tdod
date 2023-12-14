@@ -1,30 +1,29 @@
-package backend
+package api
 
 import (
 	todo "api/backend/Todo"
-	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func getTodos(c *gin.Context) {
+func GetTodos(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, todo.Todos)
 }
 
-func fetchTodoById(id string) (*todo.Todo, error) {
+func FetchTodoById(id string) (*todo.Todo, error) {
 	for i, task := range todo.Todos {
 		if task.ID == id {
 			return &todo.Todos[i], nil
 		}
 	}
-	return nil, errors.New(fmt.Sprintf("Could not find a todo item with id %s", id))
+	return nil, fmt.Errorf("could not find a todo item with id %s", id)
 }
 
-func getTodoById(c *gin.Context) {
+func GetTodoById(c *gin.Context) {
 	id := c.Param("id")
-	todo, err := fetchTodoById(id)
+	todo, err := FetchTodoById(id)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "todo item not found"})
 		return
@@ -32,9 +31,9 @@ func getTodoById(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, todo)
 }
 
-func toggleStatus(c *gin.Context) {
+func ToggleStatus(c *gin.Context) {
 	id := c.Param("id")
-	todo, err := fetchTodoById(id)
+	todo, err := FetchTodoById(id)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "todo item not found"})
 		return
@@ -47,7 +46,7 @@ func toggleStatus(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, todo)
 }
 
-func addTodo(c *gin.Context) {
+func AddTodo(c *gin.Context) {
 	var newTodo todo.Todo
 	if err := c.BindJSON(&newTodo); err != nil {
 		return
