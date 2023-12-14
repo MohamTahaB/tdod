@@ -1,6 +1,7 @@
 package main
 
 import (
+	todo "api/backend/Todo"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,38 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type todo struct {
-	ID        string `json:"id"`
-	Item      string `json:"item"`
-	Completed bool   `json:"completed"`
-}
-
-var todos = []todo{
-	{
-		ID:        "1",
-		Item:      "Clean room",
-		Completed: false,
-	},
-	{
-		ID:        "2",
-		Item:      "Read book",
-		Completed: false,
-	},
-	{
-		ID:        "3",
-		Item:      "Record video",
-		Completed: true,
-	},
-}
-
 func getTodos(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, todos)
+	c.IndentedJSON(http.StatusOK, todo.Todos)
 }
 
-func fetchTodoById(id string) (*todo, error) {
-	for i, todo := range todos {
-		if todo.ID == id {
-			return &todos[i], nil
+func fetchTodoById(id string) (*todo.Todo, error) {
+	for i, task := range todo.Todos {
+		if task.ID == id {
+			return &todo.Todos[i], nil
 		}
 	}
 	return nil, errors.New(fmt.Sprintf("Could not find a todo item with id %s", id))
@@ -72,11 +49,11 @@ func toggleStatus(c *gin.Context) {
 }
 
 func addTodo(c *gin.Context) {
-	var newTodo todo
+	var newTodo todo.Todo
 	if err := c.BindJSON(&newTodo); err != nil {
 		return
 	}
-	todos = append(todos, newTodo)
+	todo.Todos = append(todo.Todos, newTodo)
 	c.IndentedJSON(http.StatusCreated, newTodo)
 }
 
