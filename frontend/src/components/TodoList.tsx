@@ -1,21 +1,16 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import {GetHandler, api} from "../api/todos";
+import {GetAllHandler, PostHandler, api} from "../api/todos";
 import Table from "react-bootstrap/Table";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-
-type Todo = {
-    id: string;
-    item: string;
-    completed: boolean;
-};
+import { Todo, TodoRow } from "./TodoRow";
 
 function TodoList() {
     const [todos, setTodos] = useState<Todo[]>([]);
     const [formData, setFormData] = useState<string>("");
 
     const getData = async () => {
-        const res = await GetHandler()
+        const res = await GetAllHandler()
         setTodos(res)
     };
 
@@ -28,11 +23,7 @@ function TodoList() {
         e.preventDefault();
 
         try {
-            await api.post("/todos", {
-                completed: false,
-                id: Math.floor(Math.random() * 1000000).toString(),
-                item: formData,
-            });
+            PostHandler(formData)
             getData();
         } catch (err) {
             console.log(err);
@@ -55,20 +46,7 @@ function TodoList() {
                 </thead>
                 <tbody>
                     {todos.map((task) => (
-                        <tr id={task.id}>
-                            <td>
-                                <Form.Check
-                                    id={task.id}
-                                    checked={task.completed}
-                                    onClick={async () => {
-                                        await api.patch(`todos/${task.id}`);
-                                        await getData();
-                                    }}
-                                />
-                            </td>
-                            <td>{task.item}</td>
-                            <td>{task.completed ? "True" : "False"}</td>
-                        </tr>
+                        <TodoRow task={task} />
                     ))}
                 </tbody>
             </Table>
@@ -87,4 +65,3 @@ function TodoList() {
 }
 
 export default TodoList;
-export type {Todo}
