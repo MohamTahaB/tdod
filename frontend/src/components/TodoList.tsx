@@ -46,7 +46,8 @@ function TodoList() {
                 </thead>
                 <tbody>
                     {todos.map((task) => (
-                        <TodoRow task={task} />
+                        //TODO: define the onclickhandle
+                        <TodoRow task={task} onClickHandle={} />
                     ))}
                 </tbody>
             </Table>

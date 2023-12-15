@@ -10,18 +10,17 @@ type Todo = {
 
 type TodoRowProps = {
     task : Todo
+    onClickHandle : () => Promise<void>
 }
 
-const TodoRow = ({task} : TodoRowProps) => {
+const TodoRow = ({task, onClickHandle} : TodoRowProps) => {
     return (
         <tr id={task.id}>
             <td>
                 <Form.Check
                     id={task.id}
                     checked={task.completed}
-                    onClick={async () => {
-                        await api.patch(`todos/${task.id}`);
-                    }}
+                    onClick={onClickHandle}
                 />
             </td>
             <td>{task.item}</td>
