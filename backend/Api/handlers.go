@@ -54,3 +54,18 @@ func AddTodo(c *gin.Context) {
 	todo.Todos = append(todo.Todos, newTodo)
 	c.IndentedJSON(http.StatusCreated, newTodo)
 }
+
+func DeleteTodo(c *gin.Context) {
+	id := c.Param("id")
+	index := -1
+	for i, task := range todo.Todos {
+		if task.ID == id {
+			index = i
+			break
+		}
+	}
+	if index == -1 {
+		c.AbortWithStatus(http.StatusNotFound)
+	}
+	c.IndentedJSON(http.StatusOK, todo.Todos)
+}

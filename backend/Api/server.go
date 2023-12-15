@@ -22,5 +22,6 @@ func StartServer() {
 	router.GET("/todos/:id", GetTodoById)
 	router.PATCH("/todos/:id", ToggleStatus)
 	router.POST("/todos", AddTodo)
+	router.DELETE("/todos/:id", DeleteTodo)
 	router.Run("localhost:1234")
 }
