@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import api from "../api/todos";
+import {api} from "../api/todos";
 import Table from "react-bootstrap/Table";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
@@ -91,3 +91,4 @@ function TodoList() {
 }
 
 export default TodoList;
+export type {Todo}
