@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Form from "react-bootstrap/esm/Form";
 import { api } from "../api/todos";
 
@@ -9,25 +9,66 @@ type Todo = {
 };
 
 type TodoRowProps = {
-    task : Todo
-    onClickHandle : () => Promise<void>
-}
+    taskID: string;
+};
 
-const TodoRow = ({task, onClickHandle} : TodoRowProps) => {
+const TodoRow = ({ taskID }: TodoRowProps) => {
+    const [task, setTask] = useState<Todo>({
+        completed: false,
+        id: "",
+        item: "",
+    });
+
+    const fetchTaskInfo = async () => {
+        try {
+            const taskInfo = await api.get(`/todos/${taskID}`);
+            setTask(taskInfo.data);
+        } catch (err) {
+            console.log(err);
+            throw err;
+        }
+    };
+
+    const patchTaskInfo = async () => {
+        try {
+            const newTask: Todo = {
+                ...task,
+                completed: done.valueOf(),
+            };
+            await api.patch(`/todos/${taskID}`);
+        } catch (err) {
+            console.log(err);
+            throw err;
+        }
+    };
+
+    useEffect(() => {
+        fetchTaskInfo();
+    }, []);
+
+    const [done, setDone] = useState<Boolean>(task.completed);
+
+    useEffect(() => {
+        patchTaskInfo();
+        fetchTaskInfo();
+    }, [done]);
+
     return (
         <tr id={task.id}>
             <td>
                 <Form.Check
                     id={task.id}
                     checked={task.completed}
-                    onClick={onClickHandle}
+                    onClick={() => {
+                        setDone(!done);
+                    }}
                 />
             </td>
             <td>{task.item}</td>
             <td>{task.completed ? "True" : "False"}</td>
         </tr>
-    )
-}
+    );
+};
 
-export {TodoRow}
-export type {Todo}
+export { TodoRow };
+export type { Todo };
