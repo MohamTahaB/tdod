@@ -41,6 +41,7 @@ function TodoList() {
                         <th>State</th>
                         <th>Task</th>
                         <th>Done ?</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>

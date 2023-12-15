@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Form from "react-bootstrap/esm/Form";
 import { api } from "../api/todos";
+import Button from "react-bootstrap/esm/Button";
 
 type Todo = {
     id: string;
@@ -66,6 +67,11 @@ const TodoRow = ({ taskID }: TodoRowProps) => {
             </td>
             <td>{task.item}</td>
             <td>{task.completed ? "True" : "False"}</td>
+            <td>
+                <Button variant="danger">
+                    Delete
+                </Button>
+            </td>
         </tr>
     );
 };
