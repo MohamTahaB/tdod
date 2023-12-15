@@ -7,14 +7,25 @@ const api = axios.create({
 })
 
 // GET handler:
-// - Gets the data, and sets a hook state
-const getData: Promise<Todo[]> = async () => {
+const GetHandler: () => Promise<Todo[]> = async () => {
     try {
-        const res = await api.get("/todos");
-        return res.data typeof Todo[]
+        const res = await api.get<Todo[]>("/todos");
+        return res.data
     } catch (err) {
         console.log(err);
+        throw err
     }
 };
 
-export {api}
+// POST handler:
+const PostHandler: () => Promise<Todo[]> = async () => {
+    try {
+        const res = await api.get<Todo[]>("/todos");
+        return res.data
+    } catch (err) {
+        console.log(err);
+        throw err
+    }
+};
+
+export {api, GetHandler}

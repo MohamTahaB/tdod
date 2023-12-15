@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import {api} from "../api/todos";
+import {GetHandler, api} from "../api/todos";
 import Table from "react-bootstrap/Table";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
@@ -15,12 +15,8 @@ function TodoList() {
     const [formData, setFormData] = useState<string>("");
 
     const getData = async () => {
-        try {
-            const res = await api.get("/todos");
-            setTodos(res.data);
-        } catch (err) {
-            console.log(err);
-        }
+        const res = await GetHandler()
+        setTodos(res)
     };
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
