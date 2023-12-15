@@ -1,9 +1,8 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import {GetAllHandler, PostHandler, api} from "../api/todos";
 import Table from "react-bootstrap/Table";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
 import { Todo, TodoRow } from "./TodoRow";
+import { AddTaskForm } from "./AddTaskForm";
 
 function TodoList() {
     const [todos, setTodos] = useState<Todo[]>([]);
@@ -51,16 +50,7 @@ function TodoList() {
                     ))}
                 </tbody>
             </Table>
-            <Form onSubmit={handleSubmit}>
-                <Form.Label>Task</Form.Label>
-                <Form.Control
-                    type="text"
-                    id="item"
-                    placeholder="Enter your task here"
-                    onChange={handleChange}
-                />
-                <Button type="submit">Submit</Button>
-            </Form>
+            <AddTaskForm onChangeHandle={handleChange} onSubmitHandle={handleSubmit} />
         </>
     );
 }
