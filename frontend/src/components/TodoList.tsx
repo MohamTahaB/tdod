@@ -13,6 +13,16 @@ function TodoList() {
         setTodos(res);
     };
 
+    const deleteTaskInfo = (id : string) => {
+        return async () => {try {
+            const tasks = await api.delete<Todo[]>(`/todos/${id}`);
+            setTodos(tasks.data)
+        } catch (err) {
+            console.log(err);
+            throw err;
+        }}
+    };
+
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;
         setFormData(value);
@@ -47,7 +57,7 @@ function TodoList() {
                 <tbody>
                     {todos.map((task) => (
                         //TODO: define the onclickhandle
-                        <TodoRow taskID={task.id} />
+                        <TodoRow taskID={task.id} deleteTaskInfo={deleteTaskInfo} />
                     ))}
                 </tbody>
             </Table>

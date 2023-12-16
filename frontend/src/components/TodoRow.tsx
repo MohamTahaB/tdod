@@ -11,9 +11,10 @@ type Todo = {
 
 type TodoRowProps = {
     taskID: string;
+    deleteTaskInfo: (id: string) => () => Promise<void>;
 };
 
-const TodoRow = ({ taskID }: TodoRowProps) => {
+const TodoRow = ({ taskID, deleteTaskInfo }: TodoRowProps) => {
     const [task, setTask] = useState<Todo>({
         completed: false,
         id: "",
@@ -68,7 +69,7 @@ const TodoRow = ({ taskID }: TodoRowProps) => {
             <td>{task.item}</td>
             <td>{task.completed ? "True" : "False"}</td>
             <td>
-                <Button variant="danger">
+                <Button variant="danger" onClick={deleteTaskInfo(taskID)}>
                     Delete
                 </Button>
             </td>

@@ -67,5 +67,6 @@ func DeleteTodo(c *gin.Context) {
 	if index == -1 {
 		c.AbortWithStatus(http.StatusNotFound)
 	}
+	todo.Todos = append(todo.Todos[:index], todo.Todos[index+1:]...)
 	c.IndentedJSON(http.StatusOK, todo.Todos)
 }
