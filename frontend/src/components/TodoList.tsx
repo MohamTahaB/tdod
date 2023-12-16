@@ -3,6 +3,7 @@ import { GetAllHandler, PostHandler, api } from "../api/todos";
 import Table from "react-bootstrap/Table";
 import { Todo, TodoRow } from "./TodoRow";
 import { AddTaskForm } from "./AddTaskForm";
+import Container from "react-bootstrap/Container";
 
 function TodoList() {
     const [todos, setTodos] = useState<Todo[]>([]);
@@ -13,14 +14,16 @@ function TodoList() {
         setTodos(res);
     };
 
-    const deleteTaskInfo = (id : string) => {
-        return async () => {try {
-            const tasks = await api.delete<Todo[]>(`/todos/${id}`);
-            setTodos(tasks.data)
-        } catch (err) {
-            console.log(err);
-            throw err;
-        }}
+    const deleteTaskInfo = (id: string) => {
+        return async () => {
+            try {
+                const tasks = await api.delete<Todo[]>(`/todos/${id}`);
+                setTodos(tasks.data);
+            } catch (err) {
+                console.log(err);
+                throw err;
+            }
+        };
     };
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -45,26 +48,36 @@ function TodoList() {
 
     return (
         <>
-            <Table striped bordered hover variant="dark">
-                <thead>
-                    <tr>
-                        <th>State</th>
-                        <th>Task</th>
-                        <th>Done ?</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {todos.map((task) => (
-                        //TODO: define the onclickhandle
-                        <TodoRow taskID={task.id} deleteTaskInfo={deleteTaskInfo} />
-                    ))}
-                </tbody>
-            </Table>
-            <AddTaskForm
-                onChangeHandle={handleChange}
-                onSubmitHandle={handleSubmit}
-            />
+            <Container>
+                <Table
+                    striped
+                    bordered
+                    hover
+                    variant="dark"
+                    className="rounded-table"
+                >
+                    <thead>
+                        <tr>
+                            <th>State</th>
+                            <th>Task</th>
+                            <th>Done ?</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {todos.map((task) => (
+                            <TodoRow
+                                taskID={task.id}
+                                deleteTaskInfo={deleteTaskInfo}
+                            />
+                        ))}
+                    </tbody>
+                </Table>
+                <AddTaskForm
+                    onChangeHandle={handleChange}
+                    onSubmitHandle={handleSubmit}
+                />
+            </Container>
         </>
     );
 }

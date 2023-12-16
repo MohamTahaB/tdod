@@ -33,10 +33,6 @@ const TodoRow = ({ taskID, deleteTaskInfo }: TodoRowProps) => {
 
     const patchTaskInfo = async () => {
         try {
-            const newTask: Todo = {
-                ...task,
-                completed: done.valueOf(),
-            };
             await api.patch(`/todos/${taskID}`);
         } catch (err) {
             console.log(err);
