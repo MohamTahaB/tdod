@@ -25,6 +25,7 @@ func GetTodos(c *gin.Context, db *sql.DB) {
 		if err := rows.Scan(&task.ID, &task.Completed, &task.Item); err != nil {
 			log.Fatal(err)
 			c.AbortWithStatus(http.StatusBadRequest)
+			return
 		}
 		tasksOutput = append(tasksOutput, task)
 	}
@@ -36,12 +37,14 @@ func GetTodos(c *gin.Context, db *sql.DB) {
 }
 
 func FetchTodoById(id string, db *sql.DB) (*todo.Todo, error) {
-	for i, task := range todo.Todos {
-		if task.ID == id {
-			return &todo.Todos[i], nil
-		}
+	var task todo.Todo
+
+	row := db.QueryRow("SELECT * FROM tasks WHERE id = ?", id)
+	if err := row.Scan(&task.ID, &task.Completed, &task.Item); err != nil {
+		log.Fatal(err)
+		return nil, fmt.Errorf("could not find a todo item with id %s", id)
 	}
-	return nil, fmt.Errorf("could not find a todo item with id %s", id)
+	return &task, nil
 }
 
 func GetTodoById(c *gin.Context, db *sql.DB) {
@@ -56,17 +59,27 @@ func GetTodoById(c *gin.Context, db *sql.DB) {
 
 func ToggleStatus(c *gin.Context, db *sql.DB) {
 	id := c.Param("id")
-	todo, err := FetchTodoById(id, db)
+	task, err := FetchTodoById(id, db)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "todo item not found"})
 		return
 	}
-	toggleVal := true
-	if todo.Completed {
-		toggleVal = false
+	toggleValue := 0
+	if !task.Completed {
+		toggleValue = 1
 	}
-	todo.Completed = toggleVal
-	c.IndentedJSON(http.StatusOK, todo)
+	row := db.QueryRow(fmt.Sprintf("UPDATE tasks SET completed = %d WHERE id = ?", toggleValue), id)
+	if err := row.Scan(&task.ID, &task.Completed, &task.Item); err != nil {
+		log.Fatal(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	task, err = FetchTodoById(id, db)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "todo item not found"})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, task)
 }
 
 func AddTodo(c *gin.Context, db *sql.DB) {
@@ -74,22 +87,59 @@ func AddTodo(c *gin.Context, db *sql.DB) {
 	if err := c.BindJSON(&newTodo); err != nil {
 		return
 	}
-	todo.Todos = append(todo.Todos, newTodo)
+	completedVal := 0
+	if newTodo.Completed {
+		completedVal = 1
+	}
+
+	result, err := db.Exec("INSERT INTO tasks (id, completed, item) VALUES (?, ?, ?)", newTodo.ID, completedVal, newTodo.Item)
+	if err != nil {
+		log.Fatal(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	_, err = result.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
 	c.IndentedJSON(http.StatusCreated, newTodo)
 }
 
 func DeleteTodo(c *gin.Context, db *sql.DB) {
 	id := c.Param("id")
-	index := -1
-	for i, task := range todo.Todos {
-		if task.ID == id {
-			index = i
-			break
+	result, err := db.Exec("DELETE FROM tasks WHERE id = ?", id)
+	if err != nil {
+		log.Fatal(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	if _, err = result.RowsAffected(); err != nil {
+		log.Fatal(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	// Retrieve the new list of elements.
+	var tasksOutput []todo.Todo
+
+	rows, err := db.Query("SELECT * FROM tasks")
+	if err != nil {
+		log.Fatal(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var task todo.Todo
+		if err := rows.Scan(&task.ID, &task.Completed, &task.Item); err != nil {
+			log.Fatal(err)
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
 		}
+		tasksOutput = append(tasksOutput, task)
 	}
-	if index == -1 {
-		c.AbortWithStatus(http.StatusNotFound)
-	}
-	todo.Todos = append(todo.Todos[:index], todo.Todos[index+1:]...)
-	c.IndentedJSON(http.StatusOK, todo.Todos)
+	c.IndentedJSON(http.StatusOK, tasksOutput)
 }
