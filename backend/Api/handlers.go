@@ -2,17 +2,40 @@ package api
 
 import (
 	todo "api/backend/Todo"
+	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetTodos(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, todo.Todos)
+func GetTodos(c *gin.Context, db *sql.DB) {
+	var tasksOutput []todo.Todo
+
+	rows, err := db.Query("SELECT * FROM tasks")
+	if err != nil {
+		log.Fatal(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var task todo.Todo
+		if err := rows.Scan(&task.ID, &task.Completed, &task.Item); err != nil {
+			log.Fatal(err)
+			c.AbortWithStatus(http.StatusBadRequest)
+		}
+		tasksOutput = append(tasksOutput, task)
+	}
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+	}
+	c.IndentedJSON(http.StatusOK, tasksOutput)
 }
 
-func FetchTodoById(id string) (*todo.Todo, error) {
+func FetchTodoById(id string, db *sql.DB) (*todo.Todo, error) {
 	for i, task := range todo.Todos {
 		if task.ID == id {
 			return &todo.Todos[i], nil
@@ -21,9 +44,9 @@ func FetchTodoById(id string) (*todo.Todo, error) {
 	return nil, fmt.Errorf("could not find a todo item with id %s", id)
 }
 
-func GetTodoById(c *gin.Context) {
+func GetTodoById(c *gin.Context, db *sql.DB) {
 	id := c.Param("id")
-	todo, err := FetchTodoById(id)
+	todo, err := FetchTodoById(id, db)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "todo item not found"})
 		return
@@ -31,9 +54,9 @@ func GetTodoById(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, todo)
 }
 
-func ToggleStatus(c *gin.Context) {
+func ToggleStatus(c *gin.Context, db *sql.DB) {
 	id := c.Param("id")
-	todo, err := FetchTodoById(id)
+	todo, err := FetchTodoById(id, db)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "todo item not found"})
 		return
@@ -46,7 +69,7 @@ func ToggleStatus(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, todo)
 }
 
-func AddTodo(c *gin.Context) {
+func AddTodo(c *gin.Context, db *sql.DB) {
 	var newTodo todo.Todo
 	if err := c.BindJSON(&newTodo); err != nil {
 		return
@@ -55,7 +78,7 @@ func AddTodo(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, newTodo)
 }
 
-func DeleteTodo(c *gin.Context) {
+func DeleteTodo(c *gin.Context, db *sql.DB) {
 	id := c.Param("id")
 	index := -1
 	for i, task := range todo.Todos {
