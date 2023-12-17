@@ -15,7 +15,7 @@ func GetTodos(c *gin.Context, db *sql.DB) {
 
 	rows, err := db.Query("SELECT * FROM tasks")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err, "1")
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -23,14 +23,14 @@ func GetTodos(c *gin.Context, db *sql.DB) {
 	for rows.Next() {
 		var task todo.Todo
 		if err := rows.Scan(&task.ID, &task.Completed, &task.Item); err != nil {
-			log.Fatal(err)
+			log.Fatal(err, "2")
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
 		tasksOutput = append(tasksOutput, task)
 	}
 	if err := rows.Err(); err != nil {
-		log.Fatal(err)
+		log.Fatal(err, "3")
 		c.AbortWithStatus(http.StatusBadRequest)
 	}
 	c.IndentedJSON(http.StatusOK, tasksOutput)
@@ -41,7 +41,7 @@ func FetchTodoById(id string, db *sql.DB) (*todo.Todo, error) {
 
 	row := db.QueryRow("SELECT * FROM tasks WHERE id = ?", id)
 	if err := row.Scan(&task.ID, &task.Completed, &task.Item); err != nil {
-		log.Fatal(err)
+		log.Fatal(err, "4")
 		return nil, fmt.Errorf("could not find a todo item with id %s", id)
 	}
 	return &task, nil
@@ -70,7 +70,7 @@ func ToggleStatus(c *gin.Context, db *sql.DB) {
 	}
 	row := db.QueryRow(fmt.Sprintf("UPDATE tasks SET completed = %d WHERE id = ?", toggleValue), id)
 	if err := row.Scan(&task.ID, &task.Completed, &task.Item); err != nil {
-		log.Fatal(err)
+		log.Fatal(err, "5")
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -94,13 +94,13 @@ func AddTodo(c *gin.Context, db *sql.DB) {
 
 	result, err := db.Exec("INSERT INTO tasks (id, completed, item) VALUES (?, ?, ?)", newTodo.ID, completedVal, newTodo.Item)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err, "6")
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	_, err = result.LastInsertId()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err, "7")
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -111,13 +111,13 @@ func DeleteTodo(c *gin.Context, db *sql.DB) {
 	id := c.Param("id")
 	result, err := db.Exec("DELETE FROM tasks WHERE id = ?", id)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err, "8")
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	if _, err = result.RowsAffected(); err != nil {
-		log.Fatal(err)
+		log.Fatal(err, "9")
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -127,7 +127,7 @@ func DeleteTodo(c *gin.Context, db *sql.DB) {
 
 	rows, err := db.Query("SELECT * FROM tasks")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err, "10")
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -135,11 +135,17 @@ func DeleteTodo(c *gin.Context, db *sql.DB) {
 	for rows.Next() {
 		var task todo.Todo
 		if err := rows.Scan(&task.ID, &task.Completed, &task.Item); err != nil {
-			log.Fatal(err)
+			log.Fatal(err, "11")
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
 		tasksOutput = append(tasksOutput, task)
 	}
 	c.IndentedJSON(http.StatusOK, tasksOutput)
+}
+
+func Options(c *gin.Context) {
+	c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
+	c.Header("Access-Control-Allow-Headers", "Content-Type")
+	c.Status(http.StatusOK)
 }
