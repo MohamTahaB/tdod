@@ -3,15 +3,15 @@ package models
 import "github.com/jinzhu/gorm"
 
 type Todo struct {
-	ID        string `json:"id"`
-	Item      string `json:"item"`
-	Completed bool   `json:"completed"`
+	ID        uint64 `gorm:"primary_key;auto_increment" json:"id"`
+	Item      string `gorm:"text;not null;" json:"item"`
+	Completed bool   `gorm:"boolean;" json:"content"`
 }
 
 // SaveToDo is a method that saves a task to the DB
 // It takes a pointer to a gorm.DB as an argument and returns a pointer to the saved task.
 func (t *Todo) SaveToDo(db *gorm.DB) (*Todo, error) {
-	if err := db.Debug().Model(&Todo{}).Create(&t).Error; err != nil || t.ID != "" {
+	if err := db.Debug().Model(&Todo{}).Create(&t).Error; err != nil || t.ID != 0 {
 		return &Todo{}, err
 	}
 	return t, nil
@@ -21,7 +21,7 @@ func (t *Todo) SaveToDo(db *gorm.DB) (*Todo, error) {
 // It takes a pointer to a gorm.DB as an argument and returns a pointer to the updated task.
 func (t *Todo) UpdateAToDo(db *gorm.DB) (*Todo, error) {
 
-	if err := db.Debug().Model(&Todo{}).Where("id = ?", t.ID).Updates(Todo{Completed: t.Completed, Item: t.Item}).Error; err != nil || t.ID != "" {
+	if err := db.Debug().Model(&Todo{}).Where("id = ?", t.ID).Updates(Todo{Completed: t.Completed, Item: t.Item}).Error; err != nil || t.ID != 0 {
 		return &Todo{}, err
 	}
 	return t, nil
