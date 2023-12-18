@@ -1,7 +1,7 @@
 package api
 
 import (
-	todo "api/backend/Todo"
+	"api/backend/Api/models"
 	"database/sql"
 	"fmt"
 	"log"
@@ -11,7 +11,7 @@ import (
 )
 
 func GetTodos(c *gin.Context, db *sql.DB) {
-	var tasksOutput []todo.Todo
+	var tasksOutput []models.Todo
 
 	rows, err := db.Query("SELECT * FROM tasks")
 	if err != nil {
@@ -21,7 +21,7 @@ func GetTodos(c *gin.Context, db *sql.DB) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var task todo.Todo
+		var task models.Todo
 		if err := rows.Scan(&task.ID, &task.Completed, &task.Item); err != nil {
 			log.Fatal(err, "2")
 			c.AbortWithStatus(http.StatusBadRequest)
@@ -36,8 +36,8 @@ func GetTodos(c *gin.Context, db *sql.DB) {
 	c.IndentedJSON(http.StatusOK, tasksOutput)
 }
 
-func FetchTodoById(id string, db *sql.DB) (*todo.Todo, error) {
-	var task todo.Todo
+func FetchTodoById(id string, db *sql.DB) (*models.Todo, error) {
+	var task models.Todo
 
 	row := db.QueryRow("SELECT * FROM tasks WHERE id = ?", id)
 	if err := row.Scan(&task.ID, &task.Completed, &task.Item); err != nil {
@@ -83,7 +83,7 @@ func ToggleStatus(c *gin.Context, db *sql.DB) {
 }
 
 func AddTodo(c *gin.Context, db *sql.DB) {
-	var newTodo todo.Todo
+	var newTodo models.Todo
 	if err := c.BindJSON(&newTodo); err != nil {
 		return
 	}
@@ -123,7 +123,7 @@ func DeleteTodo(c *gin.Context, db *sql.DB) {
 	}
 
 	// Retrieve the new list of elements.
-	var tasksOutput []todo.Todo
+	var tasksOutput []models.Todo
 
 	rows, err := db.Query("SELECT * FROM tasks")
 	if err != nil {
@@ -133,7 +133,7 @@ func DeleteTodo(c *gin.Context, db *sql.DB) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var task todo.Todo
+		var task models.Todo
 		if err := rows.Scan(&task.ID, &task.Completed, &task.Item); err != nil {
 			log.Fatal(err, "11")
 			c.AbortWithStatus(http.StatusBadRequest)
