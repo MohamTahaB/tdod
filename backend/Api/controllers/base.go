@@ -3,6 +3,7 @@ package controllers
 import (
 	"api/backend/Api/middlewares"
 	"api/backend/Api/models"
+	"api/backend/api/seed"
 	"fmt"
 	"log"
 	"net/http"
@@ -35,6 +36,8 @@ func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 	} else {
 		fmt.Println("Unknown Driver")
 	}
+	//seed the db
+	seed.Load(server.DB)
 	//database migration
 	server.DB.Debug().AutoMigrate(
 		&models.Todo{},

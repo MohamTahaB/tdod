@@ -58,7 +58,7 @@ func (server *Server) GetToDo(c *gin.Context) {
 			"status": http.StatusBadRequest,
 		})
 		return
-	}	
+	}
 }
 
 // UpdateToDo is a function that updates a ToDo item in the database.
