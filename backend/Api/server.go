@@ -1,30 +1,44 @@
 package api
 
 import (
-	"database/sql"
-	"time"
+	"api/backend/Api/controllers"
+	"fmt"
+	"log"
+	"os"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
-func StartServer(db *sql.DB) {
-	router := gin.Default()
-	// Define a CORS Config.
-	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
-	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "User-Agent", "Cache-Control", "Pragma", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "accept", "origin", "X-Requested-With"}
-	config.ExposeHeaders = []string{"Content-Length"}
-	config.AllowCredentials = true
-	config.MaxAge = 12 * time.Hour
-	// Use the middleware.
-	router.Use(cors.New(config))
-	router.GET("/todos", func(c *gin.Context) { GetTodos(c, db) })
-	router.GET("/todos/:id", func(c *gin.Context) { GetTodoById(c, db) })
-	router.PATCH("/todos/:id", func(c *gin.Context) { ToggleStatus(c, db) })
-	router.POST("/todos", func(c *gin.Context) { AddTodo(c, db) })
-	router.DELETE("/todos/:id", func(c *gin.Context) { DeleteTodo(c, db) })
-	router.OPTIONS("todos", Options)
-	router.OPTIONS("todo/:id", Options)
-	router.Run("localhost:1234")
+// server is a global variable used to store the server instance
+var server = controllers.Server{}
+
+// init is a function that is called automatically when the program starts
+// it loads the environment variables from the .env file
+func init() {
+	// loads values from .env into the system
+	if err := godotenv.Load(); err != nil {
+		log.Print("sad .env file found")
+	}
+}
+
+// Run is the main function of the api package
+// It is responsible for initializing the server and running it
+func Run() {
+	// Load the environment variables from the .env file
+	var err error
+	err = godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error getting env, %v", err)
+	} else {
+		fmt.Println("We are getting values")
+	}
+	// Initialize the server with the environment variables
+	server.Initialize(os.Getenv("DB_DRIVER"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_PORT"), os.Getenv("DB_HOST"), os.Getenv("DB_NAME"))
+	// This is for testing, when done, do well to comment
+	// seed.Load(server.DB)
+	// Get the API port from the environment variables
+	apiPort := fmt.Sprintf(":%s", os.Getenv("API_PORT"))
+	fmt.Printf("Listening to port %s", apiPort)
+	// Run the server
+	server.Run(apiPort)
 }
