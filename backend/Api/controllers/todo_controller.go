@@ -49,6 +49,18 @@ func (server *Server) CreateToDo(c *gin.Context) {
 	})
 }
 
+// GetToDo is a function that gets all the tasks from the database.
+// It takes in a gin.Context object as an argument and returns a JSON response.
+func (server *Server) GetToDo(c *gin.Context) {
+	db := server.DB.Debug().Model(models.Todo{})
+	if db.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+		})
+		return
+	}	
+}
+
 // UpdateToDo is a function that updates a ToDo item in the database.
 // It takes in a gin.Context object as an argument and returns a JSON response.
 func (server *Server) UpdateToDo(c *gin.Context) {
