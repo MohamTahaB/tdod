@@ -46,7 +46,6 @@ func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 	server.Router = gin.Default()
 	// Use the CORS middleware
 	server.Router.Use(middlewares.CORSMiddleware())
-	// Use the CORS middleware
 	server.initializeRoutes()
 }
 
