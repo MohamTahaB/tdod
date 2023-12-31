@@ -1,7 +1,7 @@
 package api
 
 import (
-	"api/backend/Api/controllers"
+	"api/backend/api/controllers"
 	"fmt"
 	"log"
 	"os"

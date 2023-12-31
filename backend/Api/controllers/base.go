@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"api/backend/Api/middlewares"
-	"api/backend/Api/models"
+	"api/backend/api/models"
 	"api/backend/api/seed"
 	"fmt"
 	"log"

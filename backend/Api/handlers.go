@@ -1,7 +1,7 @@
 package api
 
 import (
-	"api/backend/Api/models"
+	"api/backend/api/models"
 	"database/sql"
 	"fmt"
 	"log"

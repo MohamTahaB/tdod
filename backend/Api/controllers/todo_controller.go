@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"api/backend/Api/models"
+	"api/backend/api/models"
 	"encoding/json"
 	"fmt"
 	"io"

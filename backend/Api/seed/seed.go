@@ -1,7 +1,7 @@
 package seed
 
 import (
-	"api/backend/Api/models"
+	"api/backend/api/models"
 	"log"
 
 	"github.com/jinzhu/gorm"
